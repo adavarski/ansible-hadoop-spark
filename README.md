@@ -1,4 +1,4 @@
-###Creating Hadoop cluster with Spark (Using vagrant + ansible)
+# Creating Hadoop cluster with Spark (Using vagrant + ansible)
 
 
 # Hadoop-install
