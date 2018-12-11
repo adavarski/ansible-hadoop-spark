@@ -1,0 +1,46 @@
+---
+# BACKUP
+- name: (CentOS) Check CentOS-Base.repo.backup
+  stat: path="/etc/yum.repos.d/CentOS-Base.repo.backup"
+  register: bkstat
+- name: (CentOS) Backup CentOS-Base.repo
+  copy:
+    remote_src: true
+    src: /etc/yum.repos.d/CentOS-Base.repo
+    dest: /etc/yum.repos.d/CentOS-Base.repo.backup
+  when: ( not bkstat.stat.exists )
+
+# CHANGE MIRROR
+- name: Pick Mirror config
+  set_fact:
+    mirror_config: '{{ item_foo }}'
+  with_first_found:
+    - files:
+        - 'CentOS-{{ ansible_distribution_major_version }}.repo.{{ source_provider }}'
+        - 'CentOS-{{ ansible_distribution_major_version }}.repo'
+      paths:
+        - '{{ role_path }}/templates/mirrors'
+  loop_control:
+    loop_var: item_foo
+- name: (CentOS) Use new CentOS-Base.repo
+  template:
+    src: '{{ mirror_config }}'
+    dest: /etc/yum.repos.d/CentOS-Base.repo
+
+# UPDATE
+- name: (CentOS) Update repo cache
+  yum:
+    list: ansible
+    update_cache: yes
+    cache_valid_time: 3600
+  failed_when: false
+  changed_when: false
+  ignore_errors: True
+
+# INSTALL DEPENDENCE
+- name: (CentOS) Install the dependence packages
+  package: name="{{ item_foo }}" state=present
+  with_items: '{{ pkg_conf.dependencies }}'
+  loop_control:
+    loop_var: item_foo
+

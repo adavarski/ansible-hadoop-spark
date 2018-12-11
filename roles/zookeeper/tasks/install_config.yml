@@ -1,0 +1,54 @@
+---
+
+- name: Present install path '{{ "[" }}{{ pkg_ic.install_path }}{{ "]" }}'
+  file: path="{{ pkg_ic.install_path }}" state=directory
+- name: Download {{ pkg_ic.file }} - {{ pkg_ic.install_path }}/{{ pkg_ic.file }}
+  cached_get_url:
+    cached: "{{ resource_cache }}/{{ pkg_ic.file }}"
+    url: "{{ pkg_ic.url }}"
+    dest: '{{ pkg_ic.install_path }}/{{ pkg_ic.file }}'
+- name: Unarchive package - {{ pkg_ic.install_path }}
+  unarchive:
+    src: "{{ pkg_ic.install_path }}/{{ pkg_ic.file }}"
+    dest: "{{ pkg_ic.install_path }}"
+    remote_src: yes
+
+- name: Config zookeeper
+  block:
+    - name: Present zookeeper_data_dir - {{ zookeeper_data_dir }}
+      file: path="{{ zookeeper_data_dir }}" state=directory mode=0777
+    - name: Zoo.cfg
+      template:
+        src: zoo.cfg
+        dest: "{{ pkg_ic.install_path }}/{{ pkg_ic.basename }}/conf/zoo.cfg"
+        mode: 0644
+    - name: Config Zk myid
+      template:
+        src: myid
+        dest: "{{ zookeeper_data_dir }}/myid"
+        mode: 0664
+
+# export environment variable
+- name: Export ZOOKEEPER_HOME
+  env_edit:
+    varlist:
+      - ZOOKEEPER_HOME: "{{ pkg_ic.install_path }}/{{ pkg_ic.basename }}"
+      - PATH: $ZOOKEEPER_HOME/bin:$PATH
+    marker: "{mark} ZOOKEEPER BLOCK"
+    profile_filename: zookeeper.sh
+
+- name: Setup zookeeper service
+  block:
+    - template:
+        src: zookeeperd
+        dest: "/etc/init.d/zookeeperd"
+        mode: 0755
+    # - file:
+    #     src: "/etc/init.d/zookeeperd"
+    #     dest: "/etc/rc0.d/K99zookeeperd"
+    #     mode: 0755
+    #     state: link
+    - service:
+        name: zookeeperd
+        state: restarted
+        enabled: yes

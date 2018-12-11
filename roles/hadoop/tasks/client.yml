@@ -1,0 +1,6 @@
+---
+
+- name: Setup Hadoop Client
+  include_tasks: _setup_hadoop_do.yml nodetype="Client" conftemplate="hadoop-client.ini"
+  when: cluster_mode and ( is_hadoop_client or is_historyserver )
+

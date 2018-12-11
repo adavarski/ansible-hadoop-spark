@@ -1,0 +1,5 @@
+hadoop_deploy_mode: none
+
+is_hadoop_client: true
+run_hadoop_demo: true
+run_hadoop_demo_user: spark

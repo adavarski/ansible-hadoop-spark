@@ -1,0 +1,14 @@
+---
+# Parameter:  nodetype
+#             conftemplate
+- name: Copy {{ nodetype }} confs
+  template:
+    src: 'templates/conf/{{ conftemplate }}'
+    dest: "/tmp/conf/{{ conftemplate }}"
+    owner: "{{ nobody }}"
+    group: "{{ hadoop_conf.group }}"
+    mode: 0755
+    directory_mode: 0755
+- name: Setup {{ nodetype }} hadoop
+  shell: |
+    /bin/bash -l -c "/edit_conf/edit_conf_by_file.sh /tmp/conf/{{ conftemplate }}"

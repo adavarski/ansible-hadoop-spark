@@ -1,0 +1,5 @@
+---
+
+- name: Install and config zookeeper
+  include_tasks: install_config.yml
+  when: "'zk' in group_names"

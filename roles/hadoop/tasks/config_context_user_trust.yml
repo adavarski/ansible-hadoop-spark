@@ -1,0 +1,15 @@
+---
+
+# Parameter:  Scope: xxx
+#             user: {{ username }}
+#             hosts: []
+#             guests: []
+
+- name: ({{ Scope }}) Present ssh_key for "{{ user }}"
+  user: name="{{ user }}" generate_ssh_key=yes
+  when: inventory_hostname in hosts
+- name: ({{ Scope }}) Trust "{{ user }}"
+  include_tasks: trust_a_host.yml users=['{{ user }}'] host={{ host_item }}
+  with_items: "{{ hosts }}"
+  loop_control:
+    loop_var: host_item

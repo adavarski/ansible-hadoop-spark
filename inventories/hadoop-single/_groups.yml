@@ -1,0 +1,16 @@
+---
+
+# https://gist.github.com/sivel/3c0745243787b9899486
+# ansible_connection: ssh
+group_default_vars: {}
+
+groups:
+#  - name: hadoop_alone
+#    hosts: [node_00]
+
+  - name: hadoop_single
+    hosts: [node_00]
+  - name: hadoop_client
+    hosts: [node_01]
+  - name: hadoop_all_nodes
+    children: [hadoop_single, hadoop_client]

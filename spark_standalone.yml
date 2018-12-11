@@ -1,0 +1,28 @@
+---
+
+- name: Pre-setup
+  hosts: spark_nodes:spark_nodes:zk
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/config.yml
+  roles:
+    - basic/system
+    - { role: basic/hosts }
+    - basic/sources
+    - basic/disable_firewall
+    - jdk
+    - zookeeper
+
+- name: Setup Spark
+  hosts: spark_nodes
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/config.yml
+  roles:
+    - basic/system
+    # - basic/hosts
+    # - basic/sources
+    # - jdk
+    - { role: spark, with_hadoop: true, deploy_mode: "standalone", fresh_unzip: false }

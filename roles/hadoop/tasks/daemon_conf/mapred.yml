@@ -1,0 +1,10 @@
+---
+
+- name: Configure MAPRED Cluster Mode
+  block:
+    - name: Setup Hadoop Client
+      include_tasks: _setup_hadoop_do.yml nodetype="Mapred" conftemplate="hadoop-client.ini"
+      when: is_historyserver
+
+  when: inventory_hostname in hadoop_group_up.cluster
+

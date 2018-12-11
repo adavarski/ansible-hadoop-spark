@@ -1,0 +1,16 @@
+---
+
+# https://gist.github.com/sivel/3c0745243787b9899486
+# ansible_connection: ssh
+group_default_vars: {}
+
+groups:
+  - name: bootstrap
+    hosts: [boot]
+
+  - name: masters
+    hosts: [dcos_01]
+  - name: agents
+    hosts: [dcos_02]
+  - name: cluster
+    children: [masters, agents]

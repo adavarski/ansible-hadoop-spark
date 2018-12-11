@@ -1,0 +1,34 @@
+---
+
+- name: Present hadoop users
+  block:
+    - name: Gather Hadoop Users
+      set_fact:
+        hadoop_users:
+          dict: '{{ hadoop_conf.users | combine(hadoop_client_conf.users) }}'
+          list: '{{ hadoop_conf.user_list | union(hadoop_client_conf.users.keys() ) }}'
+    - name: Present Hadoop Group
+      group: name={{ hadoop_conf.group }} gid={{ hadoop_conf.group_id }} state=present
+    - name: Present Hadoop Users, "{{ hadoop_users.list | join(',') }}"
+      user: name={{ hadoop_users.dict[item].name }} uid={{ hadoop_users.dict[item].id }} comment={{ item }} group={{ hadoop_conf.group }}  shell=/bin/bash password='{{ hadoop_password }}'
+      with_items: "{{ hadoop_users.list }}"
+
+- name: Config hdfs users
+  include_tasks: config_context_user_trust.yml Scope=HDFS user={{ hadoop_user }} hosts={{ hadoop_nodes.namenodes }} guests={{ hadoop_nodes.hdfs }}
+  with_items: "{{ hadoop_conf.hdfs_users }}"
+  loop_control:
+    loop_var: hadoop_user
+
+- name: Config yarn users
+  include_tasks: config_context_user_trust.yml Scope=YARN user={{ hadoop_user }} hosts={{ hadoop_nodes.resource_mgrs }} guests={{ hadoop_nodes.yarn }}
+  with_items: "{{ hadoop_conf.yarn_users }}"
+  loop_control:
+    loop_var: hadoop_user
+
+- name: Config mapred users
+  include_tasks: config_context_user_trust.yml Scope=MAPRED user={{ hadoop_user }} hosts={{ hadoop_nodes.resource_mgrs }} guests=[]
+  with_items: "{{ hadoop_conf.mapred_users }}"
+  loop_control:
+    loop_var: hadoop_user
+
+

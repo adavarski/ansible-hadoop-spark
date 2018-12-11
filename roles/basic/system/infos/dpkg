@@ -1,0 +1,33 @@
+DPKG
+	# Install
+	dpkg -i <.deb file name>
+	# List files of the installed package
+	dpkg -L package
+
+	dpkg -l package
+	# Remove (keep configuration)
+	dpkg -r package
+	# Remove (delete configuration)
+	dpkg -P package
+	# Show detail:
+	dpkg -s package
+	# List package detail
+	dpkg -c package.deb
+	
+APT
+https://en.wikipedia.org/wiki/APT_(Debian)
+	apt-get
+		update: is used to resynchronize the package index files from their sources. (/etc/apt/sources.list)
+		upgrade: is used to install the newest versions of all packages currently installed 
+		dist-upgrade: in addition to performing the function of upgrade, also intelligently handles changing dependencies with new versions of packages;
+
+	Files:
+		/etc/apt/sources.list: Locations to fetch packages from.
+		/etc/apt/sources.list.d/: Additional source list fragments.
+		/etc/apt/apt.conf: APT configuration file.
+		/etc/apt/apt.conf.d/: APT configuration file fragments.
+		/etc/apt/preferences: version preferences file. This is where you would specify "pinning", i.e. a preference to get certain packages from a separate source or from a different version of a distribution.
+		/var/cache/apt/archives/: storage area for retrieved package files.
+		/var/cache/apt/archives/partial/: storage area for package files in transit.
+		/var/lib/apt/lists/: storage area for state information for each package resource specified in sources.list
+		/var/lib/apt/lists/partial/: storage area for state information in transit.

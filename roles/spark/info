@@ -1,0 +1,23 @@
+1. Start hadoop before spark-shell, spark-shell depends on hdfs (configured in HADOOP_CONF_DIR/core-site.xml). 
+2. run spark-shell as mapred from ~mapred
+
+
+standalone:
+	single
+	cluster
+	cluster-ha
+
+yarn
+
+mesos
+
+
+
+{ role: spark, with_hadoop: xxx, standalone: xxx, mode: xxx }
+
+with_hadoop:	true/false
+standalone:		true/false
+when standalone == true, 3 modes:
+				single
+				cluster
+				cluster-ha

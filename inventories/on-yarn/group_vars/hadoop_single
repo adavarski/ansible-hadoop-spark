@@ -1,0 +1,15 @@
+hadoop_deploy_mode: single
+
+is_namenode: true
+is_secondarynamenode: true
+is_datanode: true
+is_hdfs: true
+
+is_resource_mgr: true
+is_node_mgr: true
+is_proxyserver: true
+is_yarn: true
+
+is_historyserver: true
+
+is_hadoop_client: true

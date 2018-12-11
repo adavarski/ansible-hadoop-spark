@@ -1,0 +1,12 @@
+---
+
+source_provider: aliyun
+
+proxy:
+  enable: false
+  default: http://xxx.xxx.xxx.xxx:yyy
+  http: http://xxx.xxx.xxx.xxx:yyy
+  https: http://xxx.xxx.xxx.xxx:yyy
+  ftp: http://xxx.xxx.xxx.xxx:yyy
+  socks: http://xxx.xxx.xxx.xxx:yyy
+  no_proxy: "localhost,127.0.0.1,localaddress,.localdomain.com"

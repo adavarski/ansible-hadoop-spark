@@ -1,0 +1,19 @@
+---
+
+- name: Setup proxy for yum
+  blockinfile:
+    path: /etc/yum.conf
+    marker: "# {mark} PROXY BLOCK"
+    block: |
+      proxy={{ proxy.http }}
+    create: yes
+  when: (proxy.enable | default(false) )
+
+- name: Disable proxy for yum
+  blockinfile:
+    path: /etc/yum.conf
+    marker: "# {mark} PROXY BLOCK"
+    block: |
+      # --------- PROXY DISABLED
+    create: yes
+  when: not (proxy.enable | default(false) )

@@ -1,0 +1,8 @@
+sys_bashrc: /etc/bashrc
+sys_profile: /etc/profile
+user_bashrc: .bashrc
+user_profile: .bash_profile
+user_env_files: ['.bashrc']
+nobody: nobody
+nogroup: nobody
+sudo_group: wheel

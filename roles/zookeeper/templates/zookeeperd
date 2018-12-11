@@ -1,0 +1,12 @@
+#!/bin/bash  
+
+#chkconfig:2345 20 90  
+#description:zookeeper  
+#processname:zookeeper  
+case $1 in  
+        start) {{ pkg_ic.install_path }}/{{ pkg_ic.basename }}/bin/zkServer.sh start;;  
+        stop) {{ pkg_ic.install_path }}/{{ pkg_ic.basename }}/bin/zkServer.sh stop;;  
+        status) {{ pkg_ic.install_path }}/{{ pkg_ic.basename }}/bin/zkServer.sh status;;  
+        restart) {{ pkg_ic.install_path }}/{{ pkg_ic.basename }}/bin/zkServer.sh restart;;  
+        *) echo "require start|stop|status|restart" ;;  
+esac  

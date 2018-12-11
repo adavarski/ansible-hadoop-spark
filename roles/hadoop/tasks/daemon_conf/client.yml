@@ -1,0 +1,10 @@
+---
+
+- name: Configure Client Cluster Mode
+  block:
+    - name: Setup Hadoop Client
+      include_tasks: _setup_hadoop_do.yml nodetype="Client" conftemplate="hadoop-client.ini"
+      when: is_hadoop_client
+
+  when: cluster_mode | default(true)
+

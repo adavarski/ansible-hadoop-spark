@@ -1,0 +1,46 @@
+---
+
+# https://gist.github.com/sivel/3c0745243787b9899486
+# ansible_connection: ssh
+group_default_vars: {}
+
+groups:
+  - name: hdfs_namenode
+    hosts: [node_00]
+  - name: hdfs_datanode
+    hosts: [node_02, node_03]
+  - name: hdfs
+    children: [hdfs_namenode, hdfs_datanode]
+
+  - name: yarn_resource_mgr
+    hosts: [node_01]
+  - name: yarn_node_mgr
+    hosts: [node_02, node_03]
+  - name: yarn_proxyserver
+    hosts: [node_01]
+  - name: yarn
+    children: [yarn_resource_mgr, yarn_node_mgr, yarn_proxyserver]
+
+  - name: historyserver
+    hosts: [node_02]
+
+  - name: hadoop_cluster
+    children: [hdfs, yarn, historyserver]
+
+  - name: spark_nodes
+    hosts: [node_04, node_05]
+  - name: hadoop_client_as_spark
+    children: [spark_nodes]
+
+  - name: spark_history_server_runner
+    hosts: [node_04]
+    vars:
+      spark_run_history_server: True
+  - name: spark_demo_runner
+    hosts: [node_05]
+    vars:
+      spark_run_demo: True
+
+
+  - name: hadoop_all_nodes
+    children: [hadoop_cluster, hadoop_client_as_spark]

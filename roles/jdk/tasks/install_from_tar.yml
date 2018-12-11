@@ -1,0 +1,36 @@
+---
+
+- name: Concat jdk version string
+  set_fact:
+    _jdk_:
+      version_detail: '{{ pkg_ic.java_version }}u{{ pkg_ic.java_subversion }}-b{{ pkg_ic.b_version }}'
+      tarball_file: 'jdk-{{ pkg_ic.java_version }}u{{ pkg_ic.java_subversion }}-linux-x64.tar.gz'
+      basename: 'jdk1.{{ pkg_ic.java_version }}.0_{{ pkg_ic.java_subversion }}'
+- name: Present install path '{{ "[" }}{{ pkg_ic.install_path }}{{ "]" }}'
+  file: path="{{ pkg_ic.install_path }}" state=directory
+- name: Download {{ _jdk_.tarball_file }}
+  cached_get_url:
+    cached: "{{ resource_cache }}/{{ _jdk_.tarball_file }}"
+    # url: "{{ pkg_ic.url }}/{{ _jdk_.version_detail }}/{{ _jdk_.tarball_file }}"
+    url: "{{ pkg_ic.full_url }}"
+    headers: 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie'
+    dest: '{{ pkg_ic.install_path }}/{{ _jdk_.tarball_file }}'
+- name: 'Unarchive package'
+  unarchive:
+    src: "{{ pkg_ic.install_path }}/{{ _jdk_.tarball_file }}"
+    dest: "{{ pkg_ic.install_path }}"
+    remote_src: yes
+
+- name: Export JAVA_HOME
+  env_edit:
+    varlist:
+      - JAVA_HOME: '{{ pkg_ic.install_path }}/{{ _jdk_.basename }}'
+      - PATH: $JAVA_HOME/bin/:$PATH
+    marker: "{mark} JAVA BLOCK"
+    profile_filename: java.sh
+
+- name: Check java installation
+  shell: /bin/sh -l -c "{{ java_version_command }}"
+  register: java_v
+  changed_when: false
+  failed_when: "( java_v | failed ) or ( pkg_ic.java_full_version not in java_v.stdout )"

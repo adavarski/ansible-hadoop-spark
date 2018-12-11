@@ -1,0 +1,15 @@
+---
+
+- name: Install Hadoop
+  hosts: hadoop_all_nodes
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/config.yml
+  roles:
+    - basic/system
+    - { role: basic/hosts }
+    - basic/sources
+#    - jdk
+    - { role: hadoop, drop_data: true, fresh_unzip: false, start_on_finish: true, run_demo: true }
+

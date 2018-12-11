@@ -1,0 +1,11 @@
+#
+
+# deb cdrom:[Debian GNU/Linux 8.8.0 _Jessie_ - Official amd64 NETINST Binary-1 20170506-14:10]/ jessie main contrib
+
+#deb cdrom:[Debian GNU/Linux 8.8.0 _Jessie_ - Official amd64 NETINST Binary-1 20170506-14:10]/ jessie main contrib
+
+deb http://deb.debian.org/debian jessie main contrib
+deb-src http://deb.debian.org/debian jessie main contrib
+
+deb http://security.debian.org/ jessie/updates main contrib
+deb-src http://security.debian.org/ jessie/updates main contrib

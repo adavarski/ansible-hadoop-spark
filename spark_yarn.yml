@@ -1,0 +1,31 @@
+---
+
+# - name: Prepare
+#   hosts: local
+#   vars:
+#     init: true
+#   roles:
+#     - hadoop
+
+- name: Install Hadoop
+  hosts: hadoop_all_nodes
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/config.yml
+  roles:
+    - basic/system
+    - { role: basic/hosts }
+    - basic/sources
+    - jdk
+    - { role: hadoop, drop_data: true, fresh_unzip: false, start_on_finish: true, run_demo: true }
+
+- name: Install Spark
+  hosts: spark_nodes
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/config.yml
+  roles:
+    - basic/system
+    - { role: spark, with_hadoop: true, deploy_mode: 'yarn', fresh_unzip: false }

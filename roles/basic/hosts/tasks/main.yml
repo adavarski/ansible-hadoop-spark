@@ -1,0 +1,26 @@
+---
+
+- debug: msg="Will set hostname as {{ hostname }}"
+- name: Set hostname
+  hostname: name="{{ hostname }}"
+
+- set_fact:
+    host_list: "{{ play_hosts | default([]) }}"
+
+# Configure /etc/hosts
+- name: Update /etc/hosts {{ ":" }} drop 127.0.0.1 to hostname (avoid address binding problem)
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^(127\.0\.0\.1)(.*?)({{ hostname }})$'
+    line: '\1\2'
+    backrefs: yes
+
+- name: Update /etc/hosts {{ ":" }} add hostnames
+  lineinfile:
+    dest: /etc/hosts
+    # regexp: '^({{ item.ip }})?(.*?)(\s)?({{ item.hostname }})?'
+    # line: '{{ item.ip }}\2 {{ item.hostname }}'
+    # backrefs: yes
+    regexp: '^{{ hostvars[item].ansible_host }}(\s)*({{ hostvars[item].ansible_hostname }})?$'
+    line: '{{ hostvars[item].ansible_host }} {{ hostvars[item].ansible_hostname }}'
+  with_items: "{{ host_list }} "

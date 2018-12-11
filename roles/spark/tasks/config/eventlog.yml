@@ -1,0 +1,15 @@
+---
+
+- name: Present Spark Local Eventlog Dir
+  file: path="{{ spark_conf.eventlog_local_dir }}" state=directory  mode=0777
+
+- name: Present Spark Remote Eventlog Dir - {{ spark_conf.eventlog_remote_dir}}
+  raw: su - {{ spark_users[0] }} -l -c "{{ spark_conf.script_dir }}/create-remote-eventlog-dir.sh {{ spark_conf.eventlog_remote_dir}}"
+  when: deploy_mode == "yarn" and (spark_run_history_server | default(false))
+
+# - name: Enable Spark Remote Eventlog
+#   env_edit:
+    
+#   set_spark_property "spark.eventLog.enabled=true"
+#   set_spark_property "spark.eventLog.dir=$path"
+#   set_spark_property "spark.history.fs.logDirectory=$path"

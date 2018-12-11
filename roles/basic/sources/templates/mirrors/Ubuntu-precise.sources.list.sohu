@@ -1,0 +1,10 @@
+deb http://mirrors.sohu.com/ubuntu/ precise main restricted universe multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-security main restricted universe multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-updates main restricted universe multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-proposed main restricted universe multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-backports main restricted universe multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise main restricted universe multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-security main restricted universe multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-updates main restricted universe multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-proposed main restricted universe multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-backports main restricted universe multiverse

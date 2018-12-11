@@ -1,0 +1,26 @@
+---
+
+- include_vars: '{{ item }}'
+  with_first_found:
+  - files:
+      - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}{{ python_suffix }}.yml'
+      - '{{ ansible_os_family }}-{{ ansible_distribution_major_version }}{{ python_suffix }}.yml'
+      - '{{ ansible_distribution }}{{ python_suffix }}.yml'
+      - '{{ ansible_os_family }}{{ python_suffix }}.yml'
+      - '{{ ansible_os_family }}.yml'
+      - 'default{{ python_suffix }}.yml'
+      - 'default.yml'
+    paths: '{{ role_path }}/vars/os'
+
+# - name: Update repositories cache
+#   apt:
+#     update_cache: yes
+#     cache_valid_time: 3600
+#   failed_when: false
+#   changed_when: false
+#   ignore_errors: True
+
+# ssh setting
+- name: Install the dependence packages
+  package: name="{{ item }}" state=present
+  with_items: '{{ dependency }}'

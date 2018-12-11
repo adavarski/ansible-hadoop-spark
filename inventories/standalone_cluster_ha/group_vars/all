@@ -1,0 +1,3 @@
+is_spark: false
+is_spark_standalone_master: false
+is_spark_standalone_slave: false

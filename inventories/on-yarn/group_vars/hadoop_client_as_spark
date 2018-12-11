@@ -1,0 +1,5 @@
+is_hadoop_client: true
+
+run_hadoop_demo: false
+run_hadoop_demo_user: spark
+

@@ -1,0 +1,19 @@
+---
+
+- name: Launch standalone spark daemons
+  block:
+    - name: Run stop-all.sh
+      raw: su - {{ spark_users[0] }} -l -c "{{ spark_path }}/sbin/stop-all.sh"
+      when: is_spark_standalone_master
+      ignore_errors: yes
+    - name: Run start-all.sh
+      raw: su - {{ spark_users[0] }} -l -c "{{ spark_path }}/sbin/start-all.sh"
+      when: is_spark_standalone_master
+  when: standalone
+
+- name: Launch Spark History_server
+  block:
+    - name: Run Spark History_server
+      raw: su - {{ spark_users[0] }} -l -c "{{ spark_conf.script_dir }}/run-historyserver.sh"
+      when: spark_run_history_server | default(false)
+  when: deploy_mode == 'yarn'

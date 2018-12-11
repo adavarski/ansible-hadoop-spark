@@ -1,0 +1,4 @@
+---
+
+- name: Config slaves
+  template: src="standalone/slaves.template" dest="{{ spark_conf.conf_dir }}/slaves"

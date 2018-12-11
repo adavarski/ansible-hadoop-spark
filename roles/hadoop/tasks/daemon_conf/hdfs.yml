@@ -1,0 +1,35 @@
+---
+
+- name: Present HDFS Directorys
+  block:
+    - name: Present Namenode Directorys
+      file:
+        path: "{{ hadoop_conf.namenode_name_dir }}"
+        owner: "{{ hadoop_conf.users.hdfs.name }}"
+        group: "{{ hadoop_conf.group }}"
+        mode: 0775
+        state: directory
+      when: is_namenode
+    - name: Present Datanode Directorys
+      file:
+        path: "{{ hadoop_conf.datanode_data_dir }}"
+        owner: "{{ hadoop_conf.users.hdfs.name }}"
+        group: "{{ hadoop_conf.group }}"
+        mode: 0775
+        state: directory
+      when: is_datanode
+
+- name: Configure HDFS Cluster Mode
+  block:
+    - name: Update hdfs slaves
+      include_tasks: _update_slaves.yml slaves={{ hadoop_nodes.datanodes }}
+      when: inventory_hostname in hadoop_nodes.namenodes
+
+    - name: Setup namenode hadoop
+      include_tasks: _setup_hadoop_do.yml nodetype="Namenode" conftemplate="hdfs-namenode.ini"
+      when: is_namenode
+    - name: Setup datanode hadoop
+      include_tasks: _setup_hadoop_do.yml nodetype="Datanode" conftemplate="hdfs-datanode.ini"
+      when: is_datanode
+  when: inventory_hostname in hadoop_group_up.cluster
+

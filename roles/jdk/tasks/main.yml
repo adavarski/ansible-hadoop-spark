@@ -1,0 +1,27 @@
+---
+
+- name: Fetch JAVA_HOME, setup if absent
+  command: /bin/sh -l -c "echo $JAVA_HOME"
+  register: fetch_java_home
+  changed_when: false
+- name: Fetch java version
+  shell: /bin/sh -l -c "{{ java_version_command }}"
+  register: java_v
+  changed_when: false
+  ignore_errors: true
+
+- debug:
+    msg: >
+      os{{ ':'}}{{ ansible_os_family }}
+      , distribution{{ ':'}}{{ ansible_distribution }}-{{ ansible_distribution_version }}({{ ansible_distribution_release }})
+      , JAVA_HOME{{ ':'}}{{ fetch_java_home.stdout }}
+      , Java version{{ ':'}}{{ java_v.stdout }}
+
+- name: Install JDK
+  block:
+    - name: Install from repo
+      include_tasks: install_from_repo.yml
+      when: pkg_ic.repo_install
+    - name: Install from tar
+      include_tasks: install_from_tar.yml
+  when: ((fetch_java_home.stdout == '') or ( java_v | failed ) ) 

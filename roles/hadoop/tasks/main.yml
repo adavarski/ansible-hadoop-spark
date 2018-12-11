@@ -1,0 +1,144 @@
+---
+
+- name: Prepare variable
+  block:
+    - name: Prepare variable
+      set_fact:
+        pkg_setting:
+          name: hadoop
+          url: "{{ pkg_ic.url }}"
+          tmp_path: "/tmp/{{ pkg_ic.basename }}"
+          install_path: "{{ pkg_ic.install_path }}"
+          hadoop_path: "{{ pkg_ic.install_path }}/{{ pkg_ic.basename }}"
+          hadoop_home: "{{ pkg_ic.install_path }}/hadoop"
+          file: "{{ pkg_ic.file }}"
+          version: "{{ pkg_ic.version }}"
+    - name: Print variable
+      debug:
+        var: pkg_setting
+    - name: Print hadoop_deploy_mode
+      debug:
+        var: hadoop_deploy_mode
+
+- name: Group Hadoop nodes
+  block:
+    - name: Group Hadoop nodes (Step 1)
+      set_fact:
+        __hdp_ns_1:
+          cluster_nodes: '{{ hostvars | hosts_with("hadoop_deploy_mode", "cluster") }}'
+          single_nodes: '{{ hostvars | hosts_with("hadoop_deploy_mode", "single") }}'
+          client_nodes: '{{ hostvars | hosts_with("is_hadoop_client", True) }}'
+    - name: Group Hadoop nodes (Step 2)
+      set_fact:
+        __hdp_ns_2:
+          all_nodes: '{{ __hdp_ns_1.cluster_nodes | union(__hdp_ns_1.single_nodes) | union(__hdp_ns_1.client_nodes) | unique }}'
+          cluster_nodes: '{{ __hdp_ns_1.cluster_nodes }}'
+          single_nodes: '{{ __hdp_ns_1.single_nodes }}'
+          cluster_client_nodes: '{{ __hdp_ns_1.client_nodes | intersect (__hdp_ns_1.cluster_nodes) }}'
+          single_client_nodes: '{{ __hdp_ns_1.client_nodes | intersect (__hdp_ns_1.single_nodes) }}'
+          unsure_client_nodes: '{{ __hdp_ns_1.client_nodes | difference (__hdp_ns_1.cluster_nodes) | difference (__hdp_ns_1.single_nodes) }}'
+    - name: Group Hadoop nodes (Step 3)
+      set_fact:
+        __hdp_ns_3:
+          cluster_nodes_cnt: '{{ __hdp_ns_2.cluster_nodes | length | int }}'
+          single_nodes_cnt: '{{ __hdp_ns_2.single_nodes | length }}'          
+          cluster_client_nodes_cnt: '{{ __hdp_ns_2.cluster_client_nodes | length }}' 
+          single_client_nodes_cnt: '{{ __hdp_ns_2.single_client_nodes | length }}' 
+          unsure_client_nodes_cnt: '{{ __hdp_ns_2.unsure_client_nodes | length }}'
+    - name: Group Hadoop nodes (Step 4)
+      set_fact:
+        hadoop_group_up:
+          all: '{{ __hdp_ns_2.all_nodes }}'
+          cluster: '{{ __hdp_ns_2.cluster_nodes }}'
+          single: '{{ __hdp_ns_2.single_nodes }}'
+          cluster_client: '{{ __hdp_ns_2.cluster_client_nodes }}'
+          single_client: '{{ __hdp_ns_2.single_client_nodes }}'
+    - name: Group Hadoop nodes (Step 5)
+      set_fact:
+        hadoop_group_up:
+          all: '{{ __hdp_ns_2.all_nodes }}'
+          cluster: '{{ __hdp_ns_2.cluster_nodes }}'
+          single: '{{ __hdp_ns_2.single_nodes }}'
+          cluster_client: '{{ __hdp_ns_2.cluster_client_nodes | union (__hdp_ns_2.unsure_client_nodes) }}'
+          single_client: '{{ __hdp_ns_2.single_client_nodes }}'
+      when: (__hdp_ns_3.unsure_client_nodes_cnt | int > 0) and (__hdp_ns_3.cluster_nodes_cnt | int > 0)
+    - name: Group Hadoop nodes (Step 5)
+      set_fact:
+        hadoop_group_up:
+          all: '{{ __hdp_ns_2.all_nodes }}'
+          cluster: '{{ __hdp_ns_2.cluster_nodes }}'
+          single: '{{ __hdp_ns_2.single_nodes }}'
+          cluster_client: '{{ __hdp_ns_2.cluster_client_nodes }}'
+          single_client: '{{ __hdp_ns_2.single_client_nodes | union (__hdp_ns_2.unsure_client_nodes) }}'
+      when: (__hdp_ns_3.unsure_client_nodes_cnt | int > 0) and (__hdp_ns_3.single_nodes_cnt | int > 0) and (__hdp_ns_3.cluster_nodes_cnt | int == 0)
+
+- name: Print hadoop_group_up
+  debug:
+    var: hadoop_group_up
+
+- name: List Hadoop Cluster nodes (cluster mode)
+  set_fact:
+    hadoop_nodes:
+      hdfs: '{{ hostvars | hosts_with("is_hdfs", True) | intersect(hadoop_group_up.cluster) }}'
+      namenodes: '{{ hostvars | hosts_with("is_namenode", True) | union ( hostvars | hosts_with("is_secondarynamenode", True)) | intersect(hadoop_group_up.cluster) }}'
+      datanodes: '{{ hostvars | hosts_with("is_datanode", True) | intersect(hadoop_group_up.cluster) }}'
+      yarn: '{{ hostvars | hosts_with("is_yarn", True) | intersect(hadoop_group_up.cluster) }}'
+      resource_mgrs: '{{ hostvars | hosts_with("is_resource_mgr", True) | intersect(hadoop_group_up.cluster) }}'
+      node_mgrs: '{{ hostvars | hosts_with("is_node_mgr", True) | intersect(hadoop_group_up.cluster) }}'
+      clients: '{{ hadoop_group_up.cluster_client }}'
+  when: inventory_hostname in (hadoop_group_up.cluster | union(hadoop_group_up.cluster_client))
+- name: List Hadoop nodes (single mode)
+  set_fact:
+    hadoop_nodes:
+      hdfs: ['{{ inventory_hostname }}']
+      namenodes: ['{{ inventory_hostname }}']
+      datanodes: ['{{ inventory_hostname }}']
+      yarn: ['{{ inventory_hostname }}']
+      resource_mgrs: ['{{ inventory_hostname }}']
+      node_mgrs: ['{{ inventory_hostname }}']
+      clients: ['{{ inventory_hostname }}']
+  when: inventory_hostname in hadoop_group_up.single
+- name: List Hadoop nodes (single client mode)
+  set_fact:
+    hadoop_nodes:
+      hdfs: []
+      namenodes: ['{{ hadoop_group_up.single[0] }}']
+      datanodes: []
+      yarn: []
+      resource_mgrs: ['{{ hadoop_group_up.single[0] }}']
+      node_mgrs: []
+      clients: ['{{ inventory_hostname }}']
+  when: inventory_hostname in (hadoop_group_up.single_client | difference(hadoop_group_up.single))
+
+- name: Get Namenode and Resource Manager
+  set_fact:
+    namenode_hostname: "{{ hostvars[hadoop_nodes.namenodes[0]].hostname}}"
+    resource_mgr_hostname: "{{ hostvars[hadoop_nodes.resource_mgrs[0]].hostname}}"
+
+- name: Solve dependence
+  block:
+    - name: Set OS dependened vars
+      include_vars: '{{ item }}'
+      with_first_found:
+      - files:
+          - '{{ ansible_os_family }}.yml'
+          - 'default.yml'
+        paths: '{{ role_path }}/vars/os'
+    - name: Install dependence packages
+      package: name="{{ item }}" state=present
+      with_items: '{{ hadoop_dependency }}'
+
+- include_tasks: config_firewall.yml
+- include_tasks: cleanup.yml
+- include_tasks: extract_hadoop.yml
+
+- include_tasks: config_context_users.yml
+- include_tasks: config_context_hosts.yml
+
+- include_tasks: config_hadoop_common.yml
+- include_tasks: config_hadoop_daemons.yml
+- include_tasks: run_daemons.yml
+
+- include_tasks: run_demo.yml
+  when: is_hadoop_client and run_demo
+

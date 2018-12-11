@@ -1,0 +1,13 @@
+.vagrant/
+*.retry
+.DS_Store
+vm/.vagrant/
+**/*.tar.gz
+*.log
+*.pyc
+.idea/
+roles/**/files/hadoop*
+**/sshkeys/
+resources/
+.hosts.yml
+*.retry

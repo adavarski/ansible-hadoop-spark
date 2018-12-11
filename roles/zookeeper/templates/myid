@@ -1,0 +1,5 @@
+{% for i in range(0, groups.zk | length) %}
+{% if ansible_hostname == hostvars[groups.zk[i]].hostname %}
+{{ i + 1 }}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,11 @@
+#
+
+# deb cdrom:[Debian GNU/Linux 7.11.0 _Wheezy_ - Official amd64 NETINST Binary-1 20160605-17:36]/ wheezy main
+
+#deb cdrom:[Debian GNU/Linux 7.11.0 _Wheezy_ - Official amd64 NETINST Binary-1 20160605-17:36]/ wheezy main
+
+deb http://httpredir.debian.org/debian wheezy main
+deb-src http://httpredir.debian.org/debian wheezy main
+
+deb http://security.debian.org/ wheezy/updates main
+deb-src http://security.debian.org/ wheezy/updates main

@@ -1,0 +1,12 @@
+---
+
+# https://gist.github.com/sivel/3c0745243787b9899486
+# ansible_connection: ssh
+group_default_vars: {}
+
+groups:
+  - name: spark_nodes
+    hosts: [node_00]
+    vars:
+      spark_run_history_server: True
+      spark_run_demo: True

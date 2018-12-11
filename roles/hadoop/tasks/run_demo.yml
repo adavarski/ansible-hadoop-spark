@@ -1,0 +1,8 @@
+---
+
+
+- name: run mapred demo
+  raw: su - {{ run_hadoop_demo_user | default('mapred') }} -l -c "{{ hadoop_conf.script_dir }}/scripts/mapred_demo.sh"
+  when: run_hadoop_demo | default(False)
+  ignore_errors: yes
+

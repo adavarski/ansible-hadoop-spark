@@ -1,0 +1,35 @@
+---
+
+- name: Download and extract
+  block: 
+    - name: Download {{ pkg_setting.file }}
+      cached_get_url:
+        cached: "{{ resource_cache }}/{{ pkg_setting.file }}"
+        url: "{{ pkg_setting.url }}"
+        dest: '{{ pkg_setting.tmp_path }}'
+    - name: Present Hadoop installation path - {{ pkg_setting.install_path }}
+      file: path="{{ pkg_setting.install_path }}" state=directory
+    - name: Unarchive package - {{ pkg_setting.install_path }}
+      unarchive:
+        src: "{{ pkg_setting.tmp_path }}"
+        dest: "{{ pkg_setting.install_path }}"
+        remote_src: yes
+    - name: Create link
+      file:
+        src: "{{ pkg_setting.hadoop_path }}"
+        dest: "{{ pkg_setting.hadoop_home }}"
+        state: link
+
+- name: Export HADOOP_HOME, HADOOP_PREFIX ...
+  env_edit:
+    varlist:
+      - HADOOP_VERSION: "{{ pkg_setting.version }}"
+      - HADOOP_HOME: "{{ pkg_setting.hadoop_home }}"
+      - HADOOP_PREFIX: "{{ pkg_setting.hadoop_home }}"
+      - HADOOP_HDFS_HOME: "{{ pkg_setting.hadoop_home }}"
+      - HADOOP_YARN_HOME: "{{ pkg_setting.hadoop_home }}"
+      - HADOOP_MAPRED_HOME: "{{ pkg_setting.hadoop_home }}"
+      - PATH: $HADOOP_HOME/bin:$PATH
+    marker: "# {mark} HADOOP_HOME BLOCK"
+    profile_filename: hadoop.sh
+

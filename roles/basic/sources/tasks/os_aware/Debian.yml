@@ -1,0 +1,68 @@
+---
+
+# BACKUP
+- name: (Debian) Check if sources.list.bk exist
+  stat: path="/etc/apt/sources.list.bk"
+  register: bkstat
+- name: (Debian) Backup sources.list
+  copy:
+    remote_src: true
+    src: /etc/apt/sources.list
+    dest: /etc/apt/sources.list.bk
+  when: ( not bkstat.stat.exists )
+
+
+# CHANGE MIRROR
+- name: Pick Mirror config
+  set_fact:
+    mirror_config: '{{ item_foo }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution }}-{{ ansible_distribution_release }}.sources.list.{{ source_provider }}'
+        - '{{ ansible_distribution }}-{{ ansible_distribution_release }}.sources.list'
+      paths:
+        - '{{ role_path }}/templates/mirrors'
+  loop_control:
+    loop_var: item_foo
+- name: (Debian) Setup sources.list by adding mrrior config at BOF
+  block:
+    - name: Create temporary directory
+      tempfile: state=directory
+      register: temp_src_dir
+    - name: Copy template sources.list to temporary directory
+      copy:
+        src: '{{ mirror_config }}'
+        dest: '{{ temp_src_dir.path }}/{{ ansible_distribution }}-{{ ansible_distribution_release }}.sources.list'
+    - name: Reading Mirror file and register it into data variable
+      shell: cat {{ temp_src_dir.path }}/{{ ansible_distribution }}-{{ ansible_distribution_release }}.sources.list
+      register: temp_src_content
+    - name: Insert the text from Mirror file into file sources.list
+      blockinfile:
+        dest: /etc/apt/sources.list
+        insertbefore: BOF
+        marker: "# {mark} DEBIAN MIRROR BLOCK"
+        block: |
+          {{ temp_src_content.stdout }}
+  when: set_source_at_bof | default(true)
+- name: (Debian) Use new repo setting
+  template:
+    src: '{{ mirror_config }}'
+    dest: /etc/apt/sources.list
+  when: not (set_source_at_bof | default(false) )
+
+# - name: Use new repo setting
+#   template:
+#     src: '{{ ansible_distribution }}/{{ ansible_distribution_release }}.sources.list'
+#     dest: /etc/apt/sources.list
+
+# UPDATE
+- name: (Debian) Update repo cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  failed_when: false
+  changed_when: false
+  ignore_errors: True
+
+# - name: apt-get upgrade
+#   raw: apt-get upgrade -y

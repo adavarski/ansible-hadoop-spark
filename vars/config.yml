@@ -1,0 +1,18 @@
+---
+resource_cache: "{{ lookup('env','HOME') }}/.resources"
+
+spark_group: spark
+spark_users:
+  - 'spark'
+  - '{{ ansible_user }}'
+  - 'andy'
+
+proxy:
+  enable: false
+  default: http://1.1.1.1:1111
+  http: http://1.1.1.1:1111
+  https: http://1.1.1.1:1111
+  ftp: http://1.1.1.1:1111
+  socks: http://1.1.1.1:1111
+  no_proxy: "localhost,127.0.0.1,localaddress,.localdomain.com"
+

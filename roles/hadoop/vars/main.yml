@@ -1,0 +1,45 @@
+---
+
+hadoop_conf:
+  group: hadoop
+  group_id: 2000
+  users:
+    hadoop:
+      name: hadoop
+      id: 2001
+    hdfs:
+      name: hdfs
+      id: 2002
+    yarn:
+      name: yarn
+      id: 2003
+    mapred:
+      name: mapred
+      id: 2004
+  user_list:
+    - hadoop
+    - hdfs
+    - yarn
+    - mapred
+  hdfs_users:
+    - hadoop
+    - hdfs
+  yarn_users:
+    - hadoop
+    - yarn
+  mapred_users:
+    - hadoop
+    - mapred
+  hostchecking: true
+  cluster_name: cluster_x
+  namenode_name_dir: /home/hdfs/name
+  datanode_data_dir: /home/hdfs/data
+  hadoop_conf_dir: /etc/hadoop
+  hadoop_log_dir: /var/hadoop/hadoop/logs
+  hadoop_yarn_log_dir: /var/hadoop/yarn/logs
+  hadoop_mapred_log_dir: /var/hadoop/mapred/logs
+  script_dir: /hadoop-script
+
+
+
+

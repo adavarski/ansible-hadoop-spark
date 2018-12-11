@@ -1,0 +1,30 @@
+---
+
+- name: Setup proxy for package manager
+  include_tasks: "proxy/{{ ansible_pkg_mgr }}.yml"
+
+- name: Resolve vars
+  include_vars: "{{ item_x }}"
+  with_first_found:
+  - files:
+    - '{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml'
+    - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'
+    - '{{ ansible_distribution }}.yml'
+    - '{{ ansible_os_family }}.yml'
+    - 'default.yml'
+    paths: '{{ role_path }}/vars/os_aware'
+  loop_control:
+    loop_var: item_x
+
+- name: Update repo
+  include_tasks: "{{ item }}"
+  with_first_found:
+  - files:
+    - '{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml'
+    - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'
+    - '{{ ansible_distribution }}.yml'
+    - '{{ ansible_os_family }}.yml'
+    # - 'default.yml'
+    paths: '{{ role_path }}/tasks/os_aware'
+    # skip: true
+

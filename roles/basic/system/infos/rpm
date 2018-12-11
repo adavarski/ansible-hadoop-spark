@@ -1,0 +1,48 @@
+http://cn.linux.vbird.org/linux_basic/0520rpm_and_srpm.php
+RPM database: /var/lib/rpm/
+
+	Install
+		# Install
+		rpm -i xxx.rpm
+
+		# Install with progress
+		rpm -ivh xxx.rpm
+
+		# Install multiple packages
+		rpm -ivh xxx.rpm *.rpm
+
+		# Install using url
+		rpm -ivh http://website.name/path/xxx.rpm
+
+	Upgrade/Fresh
+		-Uvh: Install if not installed, upgrade if old version installed
+		-Fvh: Won't install if not installed, upgrade if old version installed
+
+	Query
+		# Query installed
+		rpm -qa
+		# Query installed package info
+		rpm -q[licdR] package
+		# Find which package the file belongs to
+		rpm -qf filename
+
+	Uninstall:
+		rpm -e xxx
+
+	Rebuild Database:
+		rpm --rebuilddb
+
+
+YUM
+	# Query
+		yum [list|info|search|provides|whatprovides] args
+	# Install Update
+		yum [install|update] package
+	# Remove
+		yum [remove] package
+
+	YUM Repos
+		/etc/yum.repos.d
+		yum repolist all
+		yum clean [packages|headers|all] 
+		yum grouplist

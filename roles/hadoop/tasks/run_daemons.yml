@@ -1,0 +1,27 @@
+---
+
+- name: prepare script directory
+  file: path="{{ hadoop_conf.script_dir }}" owner={{ nobody}} group={{ nogroup}} mode=0777 state=directory
+- name: copy launch daemon script
+  copy: src='files/scripts' dest="{{ hadoop_conf.script_dir }}" owner={{ nobody }} group="{{ hadoop_conf.group }}" mode=0755 directory_mode=0755
+
+- name: Format namenode
+  block:
+    - name: check if namenode formatted
+      stat: path="{{ hadoop_conf.namenode_name_dir }}/current/VERSION"
+      register: namenodeversionfile
+    - debug: msg="{{ hadoop_conf.namenode_name_dir }}/current/VERSION exist-{{ namenodeversionfile }}"
+    - name: format namenode
+      raw: su - {{ hadoop_conf.users.hdfs.name }} -l -c "{{ hadoop_conf.script_dir}}/scripts/format_namenode.sh {{ hadoop_conf.cluster_name }}"
+      when: ( not namenodeversionfile.stat.exists )
+  when: is_namenode
+
+- name: start hdfs
+  raw: su - {{ hadoop_conf.users.hdfs.name }} -l -c "{{ hadoop_conf.script_dir }}/scripts/start_hdfs.sh"
+  when: is_namenode
+- name: start yarn
+  raw: su - {{ hadoop_conf.users.yarn.name }} -l -c "{{ hadoop_conf.script_dir }}/scripts/start_yarn.sh"
+  when: is_resource_mgr
+- name: run mr history server
+  raw: su - {{ hadoop_conf.users.mapred.name }} -l -c "{{ hadoop_conf.script_dir }}/scripts/start_mr_jobhistory.sh"
+  when: is_historyserver

@@ -1,0 +1,81 @@
+---
+# os_family, name, release
+options:
+  system:
+    - etc_env
+    - etc_profile
+    - etc_profd
+  user:
+    - pam_env
+    - profile
+    - bashrc
+
+# default:
+#   comment: https://www.tecmint.com/set-unset-environment-variables-in-linux/
+#   system:
+#     - etc_env
+#   user:
+#     - pam_env
+
+Debian:
+  # default:
+      # system:
+      #   - etc_env
+      # user:
+      #   - profile
+  Ubuntu:
+    default:
+      comment: https://help.ubuntu.com/community/EnvironmentVariables#System-wide_environment_variables
+      system:
+        - etc_profd
+      user:
+        - pam_env
+    precise:
+      nothing: ''
+    trusty:
+      system:
+        - etc_profd
+      user:
+        - pam_env
+        - profile
+    xenial:
+      system:
+        - etc_profd
+      user:
+        - pam_env
+        - profile
+  Debian:
+    default:
+      comment: https://wiki.debian.org/EnvironmentVariables
+      system:
+        - etc_profd
+      user:
+        - profile
+    wheezy:
+      system:
+        - etc_profd
+      user:
+        - profile
+    jessie:
+      system:
+        - etc_profd
+      user:
+        - profile
+RedHat:
+  CentOS:
+    default:
+      comment: https://www.centoshowtos.org/environment-variables/
+    Final:
+      comment: CentOS6
+      system:
+        - etc_profd
+      user:
+        - bashrc
+
+    Core:
+      comment: CentOS7
+      system:
+        - etc_profd
+      user:
+        - bashrc
+

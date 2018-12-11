@@ -1,0 +1,111 @@
+---
+
+- name: Present Spark group and users
+  block:
+    - name: Present group - {{ spark_group }}
+      group:
+        name: '{{ spark_group }}'
+        state: present
+    - name: Present users - {{ spark_users }}
+      user:
+        name: "{{ item }}"
+        groups: ["{{ sudo_group }}", '{{ spark_group }}']
+        shell: /bin/bash
+        append: yes
+      with_items: "{{ spark_users }}"
+
+- name: Gather Spark Nodes
+  set_fact:
+    standalone_mode_by_master_count: {"0": "single", "1": "cluster"}
+    standalone: '{{ deploy_mode == "standalone" | bool }}'
+    spark_nodes:
+      masters: '{{ hostvars | hosts_with("is_spark_standalone_master", True) | intersect(hostvars | hosts_with("is_spark", True)) }}'
+      slaves: '{{ hostvars | hosts_with("is_spark_standalone_slave", True) | intersect(hostvars | hosts_with("is_spark", True)) }}'
+- set_fact:
+    _masters_count: '{{ spark_nodes.masters | length }}'
+    _slaves_count: '{{ spark_nodes.slaves | length }}'
+- name: Check standalone config mode
+  block:
+    - set_fact:
+        standalone_mode: '{{ standalone_mode_by_master_count[_masters_count | default("na")] | default("cluster-ha") }}'
+    - debug: msg="Master count {{ _masters_count }}, Config mode is {{ standalone_mode }}"
+    - set_fact:
+        # zk_url: "{{ groups['zk'] | map('extract', hostvars, 'hostname') | list | join(',')  | regex_replace('^(([^,]{1,}),)*(([^,]{1,}){1})$', '\\2:2181,\\3:2181') }}"
+        zk_url: "{{ groups['zk'] | map('extract', hostvars, 'hostname') | list | join(',')  | regex_replace('([^,]{1,})', '\\1:2181') }}"
+      when: standalone_mode == "cluster-ha"
+  when: standalone
+
+- name: Present Spark Deploy Zookeeper Dir
+  file: path="{{ spark_conf.deploy_zookeeper_dir }}" state=directory  mode=0777
+  when: standalone and ( standalone_mode == "cluster-ha" )
+
+- name: Copy Spark Conf data
+  block:
+    - name: Present Spark Conf Dir - {{ spark_conf.conf_dir }}
+      file: path="{{ spark_conf.conf_dir }}" state=directory
+    - name: Copy Spark Scripts
+      copy: src="scripts/" dest="{{ spark_conf.script_dir }}/" mode=0555 directory_mode=0555
+    - name: Copy Spark Conf Dir
+      shell: cp -rf {{ spark_home }}/conf/* {{ spark_conf.conf_dir }}
+    - name: Enable Spark Config files
+      copy:
+        src: "{{ spark_conf.conf_dir }}/{{ item }}.template"
+        dest: "{{ spark_conf.conf_dir }}/{{ item }}"
+        remote_src: True
+      with_items: ["spark-env.sh", "spark-defaults.conf"]
+    - name: Export SPARK_CONF_DIR
+      env_edit:
+        varlist:
+          - SPARK_CONF_DIR: "{{ spark_conf.conf_dir }}"
+        marker: "{mark} SPARK_CONF BLOCK"
+        profile_filename: spark.sh
+
+- name: Config standalone mode
+  block:
+    - name: Set Spark configuration for standalone mode
+      include_tasks: config/standalone-{{ standalone_mode }}.yml
+    - name: Copy standalone conf
+      template: src='{{ item.src }}' dest="{{ spark_conf.conf_dir }}/{{ item.path | regex_replace('(\.template)?$') }}" mode='{{ item.mode }}'
+      with_filetree: 'templates/standalone/{{ standalone_mode }}/'
+      loop_control:
+        label: "{{ item.path }}"
+  when: standalone
+# - name: Config yarn mode
+#   block:
+#     - name: Copy {{ deploy_mode }} conf
+#       template: src='{{ item.src }}' dest="{{ spark_conf.conf_dir }}/{{ item.path | regex_replace('(\.template)?$') }}" mode='{{ item.mode }}'
+#       with_filetree: 'templates/{{ deploy_mode }}/'
+#       loop_control:
+#         label: "{{ item.path }}"
+#   when: deploy_mode == "yarn"
+
+- name: Set Spark's eventlog
+  include_tasks: config/eventlog.yml
+  when: spark_conf.eventlog_enable
+
+- name: Config password-less
+  block: 
+    - name: Config password-less from localhost
+      include_tasks: passwordless/localhost.yml users={{ spark_users }}
+      when: standalone_mode == 'single'
+    - name: Config password-less from master
+      include_tasks: passwordless/from_master.yml users={{ spark_users }}
+      when: (standalone_mode == 'cluster') or (standalone_mode == 'cluster-ha')
+  when: standalone
+
+# Setup user specified environment
+- name: Export SPARK_LOG_DIR
+  block:
+    - name: Present SPARK_LOG_DIR - /home/{{ spark_users }}/logs
+      file: path="/home/{{ item }}/logs" state=directory  owner="{{ item }}" group="{{ spark_group}}"
+      with_items: "{{ spark_users }}"
+    - name: Export LOG_DIRs for - {{ spark_users }}
+      env_edit:
+        varlist:
+          - SPARK_PID_DIR: /home/{{ item }}/logs
+          - SPARK_LOG_DIR: /home/{{ item }}/logs
+          - SPARK_WORKER_DIR: /home/{{ item }}/spark_worker
+        marker: "{mark} SPARK LOGS BLOCK"
+        owner: "{{ item }}"
+        group: "{{ spark_group }}"
+      with_items: "{{ spark_users }}"

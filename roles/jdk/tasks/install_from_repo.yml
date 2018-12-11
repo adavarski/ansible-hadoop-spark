@@ -1,0 +1,15 @@
+---
+# Install apt managed jdk
+
+- name: Add apt repository
+  apt_repository:
+    repo: ppa:openjdk-r/ppa
+  when: ( ansible_distribution == "Ubuntu" ) and ( ansible_distribution_version | version_compare('16.04', '<') )
+  # failed_when: false
+  # changed_when: false
+  # ignore_errors: True
+
+- name: Install the openjdk packages
+  package: name="{{ item }}" state=present
+  with_items: ['openjdk-7-jdk', 'openjdk-8-jdk']
+  # ignore_errors: yes

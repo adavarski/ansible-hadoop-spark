@@ -1,0 +1,4 @@
+is_hadoop_client: true
+
+run_hadoop_demo: true
+run_hadoop_demo_user: andy

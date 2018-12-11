@@ -1,0 +1,77 @@
+---
+
+- name: Set HADOOP_LOG_DIR
+  block:
+    - name: Present LOG Directorys (HADOOP, YARN, MAPRED)
+      file:
+        path: "{{ item.path }}"
+        owner: "{{ item.owner }}"
+        group: "{{ hadoop_conf.group }}"
+        mode: 0775
+        state: directory
+      with_items:
+        - path: "{{ hadoop_conf.hadoop_log_dir }}"
+          owner: "{{ hadoop_conf.users.hdfs.name }}"
+        - path: "{{ hadoop_conf.hadoop_yarn_log_dir }}"
+          owner: "{{ hadoop_conf.users.yarn.name }}"
+        - path: "{{ hadoop_conf.hadoop_mapred_log_dir }}"
+          owner: "{{ hadoop_conf.users.mapred.name }}"
+    - name: export HADOOP_LOG_DIR ...
+      env_edit:
+        varlist:
+          - HADOOP_LOG_DIR: "{{ hadoop_conf.hadoop_log_dir }}"
+          - YARN_LOG_DIR: "{{ hadoop_conf.hadoop_yarn_log_dir }}"
+          - HADOOP_MAPRED_LOG_DIR: "{{ hadoop_conf.hadoop_mapred_log_dir }}"
+        marker: "{mark} HADOOP_LOG BLOCK"
+        profile_filename: hadoop.sh
+
+- name: Copy and Present HADOOP_CONF_DIR
+  block:
+    - name: Present hadoop_conf_dir - {{ hadoop_conf.hadoop_conf_dir }}
+      file: path="{{ hadoop_conf.hadoop_conf_dir }}" state=directory
+    - name: Raw Copy
+      shell: |
+        rm -rf {{ hadoop_conf.hadoop_conf_dir }}/*
+        cp -rf {{ pkg_setting.hadoop_home }}/etc/hadoop/* {{ hadoop_conf.hadoop_conf_dir }}
+    - name: Copy template file
+      copy:
+        src: "{{ hadoop_conf.hadoop_conf_dir }}/{{ item }}.template"
+        dest: "{{ hadoop_conf.hadoop_conf_dir }}/{{ item }}"
+        remote_src: yes
+      with_items:
+        - mapred-queues.xml
+        - mapred-site.xml
+    - name: Export HADOOP_CONF_DIR ...
+      env_edit:
+        varlist:
+          - HADOOP_CONF_DIR: "{{ hadoop_conf.hadoop_conf_dir }}"
+        marker: "{mark} HADOOP CONF BLOCK"
+        profile_filename: hadoop.sh
+
+- name: Update Hadoop env
+  block:
+    - name: fetch JAVA_HOME
+      command: /bin/bash -l -c "echo $JAVA_HOME"
+      changed_when: false
+      register: fetch_java_home
+    - debug: msg="JAVA_HOME={{ fetch_java_home.stdout}}"
+    - name: set hadoop JAVA_HOME
+      lineinfile:
+        dest: "{{ hadoop_conf.hadoop_conf_dir }}/hadoop-env.sh"
+        regexp: '^export JAVA_HOME='
+        line: 'export JAVA_HOME={{ fetch_java_home.stdout}}'
+    - name: Set HADOOP_LOG_DIR to hadoop-env.sh
+      lineinfile:
+        dest: "{{ hadoop_conf.hadoop_conf_dir }}/hadoop-env.sh"
+        regexp: '^export HADOOP_LOG_DIR='
+        line: export HADOOP_LOG_DIR={{ hadoop_conf.hadoop_log_dir }}
+    - name: Set HADOOP_MAPRED_LOG_DIR to mapred-env.sh
+      lineinfile:
+        dest: "{{ hadoop_conf.hadoop_conf_dir }}/mapred-env.sh"
+        regexp: '^export HADOOP_MAPRED_LOG_DIR='
+        line: export HADOOP_MAPRED_LOG_DIR={{ hadoop_conf.hadoop_mapred_log_dir }}
+    - name: Set YARN_LOG_DIR to yarn-env.sh
+      lineinfile:
+        dest: "{{ hadoop_conf.hadoop_conf_dir }}/yarn-env.sh"
+        regexp: '^export YARN_LOG_DIR='
+        line: export YARN_LOG_DIR={{ hadoop_conf.hadoop_yarn_log_dir }}

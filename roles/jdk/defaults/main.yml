@@ -1,0 +1,12 @@
+---
+
+pkg_ic:
+  name: jdk
+  repo_install: false
+  install_path: /usr/lib/jdk
+  java_version: 8
+  java_subversion: 192
+  java_full_version: 1.8.0_192
+  b_version: 12
+  url: http://download.oracle.com/otn-pub/java/jdk
+  full_url: https://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/jdk-8u192-linux-x64.tar.gz

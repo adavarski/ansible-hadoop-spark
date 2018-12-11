@@ -1,0 +1,3 @@
+NameNode	http://nn_host:port/	Default HTTP port is 50070.
+ResourceManager	http://rm_host:port/	Default HTTP port is 8088.
+MapReduce JobHistory Server	http://jhs_host:port/	Default HTTP port is 19888.

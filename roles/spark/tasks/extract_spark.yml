@@ -1,0 +1,44 @@
+---
+
+- set_fact:
+    spark_ic:
+      name: spark
+      install_path: '{{ spark_conf.install_dir }}'
+      url: '{{ spark_res.url }}'
+      file: '{{ spark_res.file }}'
+      basename: '{{ spark_res.basename }}'
+    spark_path: '{{ spark_conf.install_dir }}/{{ spark_res.basename}}'
+    spark_home: '{{ spark_conf.home }}'
+
+- name: Download and extract
+  block:
+    - name: Delete Spark installation - {{ spark_path }}
+      file: path="{{ item }}" state=absent
+      with_items: ["{{ spark_path }}", "{{ spark_home }}"]
+      when: fresh_unzip | default(true)
+    - name: Download - {{ spark_ic.file }}
+      cached_get_url:
+        cached: "{{ resource_cache }}/{{ spark_ic.file }}"
+        url: "{{ spark_ic.url }}"
+        dest: '{{ spark_ic.install_path }}/{{ spark_ic.file }}'
+    - name: Unarchive package - {{ spark_ic.install_path }}
+      unarchive:
+        src: "{{ spark_ic.install_path }}/{{ spark_ic.file }}"
+        dest: "{{ spark_ic.install_path }}"
+        remote_src: yes
+    - name: Make soft link
+      file:
+        src: "{{ spark_path }}"
+        dest: "{{ spark_home }}"
+        state: link
+        mode: 0777
+
+- name: Export SPARK_HOME ...
+  env_edit:
+    varlist:
+      - SPARK_HOME: "{{ spark_home }}"
+      - PATH: $SPARK_HOME/bin:$PATH
+    marker: "{mark} SPARK_HOME BLOCK"
+    state: present
+    profile_filename: spark.sh
+

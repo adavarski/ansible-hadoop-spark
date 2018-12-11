@@ -1,0 +1,27 @@
+---
+
+drop_data: false
+fresh_unzip: true
+start_on_finish: true
+run_demo: false
+
+# passw0rd
+hadoop_password: $6$VKqoODAnoEqhS$QhuYlkAChxm5P1FLgrPXJO4OrdM/qRBsfnBr6Jsfw18GserWNBSJ5kKl64nX9ouqdnBeGSzjMSd5z1SfFMgpE1
+
+pkg_ic:
+  name: hadoop
+  install_path: /usr/lib
+  url: http://archive.apache.org/dist/hadoop/common/hadoop-2.8.2/hadoop-2.8.2.tar.gz
+  file: hadoop-2.8.2.tar.gz
+  basename: hadoop-2.8.2
+  version: 2.8.2
+
+hadoop_client_conf:
+  users:
+    demo_runner:
+      name: andy
+      id: 3001
+    spark:
+      name: spark
+      id: 3002
+

@@ -1,0 +1,13 @@
+---
+
+spark_ics:
+  no_hadoop:
+    version: 2.2.0
+    url: https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-without-hadoop.tgz
+    file: spark-2.2.0-bin-without-hadoop.tgz
+    basename: spark-2.2.0-bin-without-hadoop
+  with_hadoop:
+    version: 2.2.0
+    url: https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz
+    file: spark-2.2.0-bin-hadoop2.7.tgz
+    basename: spark-2.2.0-bin-hadoop2.7

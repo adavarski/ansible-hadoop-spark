@@ -1,0 +1,11 @@
+---
+
+pkg_ic:
+  name: zookeeper
+  install_path: /usr/lib/zookeeper
+  url: http://www-eu.apache.org/dist/zookeeper/zookeeper-3.4.10/zookeeper-3.4.10.tar.gz
+  file: zookeeper-3.4.10.tar.gz
+  basename: zookeeper-3.4.10
+  version: 3.4.10
+
+zookeeper_data_dir: /var/lib/zookeeper

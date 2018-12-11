@@ -1,0 +1,4 @@
+---
+
+- name: Setup single hadoop
+  include_tasks: _setup_hadoop_do.yml nodetype="Single" conftemplate="single.ini"

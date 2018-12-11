@@ -1,0 +1,10 @@
+deb http://mirrors.sohu.com/debian/ squeeze main non-free contrib
+deb http://mirrors.sohu.com/debian/ squeeze-updates main non-free contrib
+deb http://mirrors.sohu.com/debian/ squeeze-lts main non-free contrib
+deb-src http://mirrors.sohu.com/debian/ squeeze main non-free contrib
+deb-src http://mirrors.sohu.com/debian/ squeeze-updates main non-free contrib
+deb-src http://mirrors.sohu.com/debian/ squeeze-lts main non-free contrib
+deb http://mirrors.sohu.com/debian-security/ squeeze/updates main non-free contrib
+deb-src http://mirrors.sohu.com/debian-security/ squeeze/updates main non-free contrib
+deb http://mirrors.sohu.com/debian-backports/ squeeze-backports main contrib non-free
+deb-src http://mirrors.sohu.com/debian-backports/ squeeze-backports main contrib non-free

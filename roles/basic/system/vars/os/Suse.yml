@@ -1,0 +1,7 @@
+sys_bashrc: /etc/bash.bashrc
+sys_profile: /etc/profile
+user_bashrc: .bashrc
+user_profile: .profile
+user_env_files: ['.bashrc']
+nobody: nobody
+nogroup: nogroup

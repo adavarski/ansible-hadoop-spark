@@ -1,0 +1,32 @@
+---
+
+- name: Copy conf_editor
+  copy: src='files/edit_conf/' dest="/edit_conf" owner={{ nobody }} group="{{ hadoop_conf.group }}" mode=0755 directory_mode=0755
+
+- name: Present Config Directorys
+  file:
+    path: "/tmp/conf"
+    owner: "{{ nobody }}"
+    group: "{{ hadoop_conf.group }}"
+    mode: 0775
+    state: directory
+
+- name: Configure Single Node Daemons
+  include_tasks: daemon_conf/single.yml
+  when: inventory_hostname in hadoop_group_up.single
+
+- name: Configure HDFS Daemon
+  include_tasks: daemon_conf/hdfs.yml
+  when: inventory_hostname in hadoop_nodes.hdfs
+
+- name: Configure YARN Daemon
+  include_tasks: daemon_conf/yarn.yml
+  when: inventory_hostname in hadoop_nodes.yarn
+
+- name: Configure MAPRED Daemon
+  include_tasks: daemon_conf/mapred.yml
+  when: is_yarn
+
+- name: Configure Client
+  include_tasks: daemon_conf/client.yml
+  when: is_hadoop_client

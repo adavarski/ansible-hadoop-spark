@@ -1,0 +1,15 @@
+---
+
+- name: Present spark_install_dir
+  file: path="{{ spark_conf.install_dir }}" state=directory
+
+- set_fact:
+    spark_res: "{{ with_hadoop | default(true) | ternary(spark_ics.with_hadoop , spark_ics.no_hadoop ) }}"
+
+- import_tasks: extract_spark.yml spark_res='{{ spark_res }}'
+- import_tasks: config_spark.yml
+- include_tasks: run_daemons.yml
+  when: start_on_finish
+
+- include_tasks: run_demo.yml
+  when: spark_run_demo | default(false)

@@ -1,0 +1,46 @@
+---
+
+- name: Avoid Strict host key checking
+  raw: sed -i 's/^#   StrictHostKeyChecking.*$/    StrictHostKeyChecking no/g' /etc/ssh/ssh_config
+  when: not hadoop_conf.hostchecking
+
+- name: Build known_hosts
+  block:
+    # Configure ~user/.ssh/known_hosts
+    - name: Ssh-keyscan {{ ":" }} localhost
+      shell: ssh-keyscan -t rsa {{ item}}
+      changed_when: false
+      register: keyscan_localhost
+      with_items: ['0.0.0.0', 'localhost']
+    - name: Update known_hosts {{ ":" }} add localhost
+      lineinfile: dest=/home/{{ hadoop_conf.users.hadoop.name }}/.ssh/known_hosts create=yes state=present owner={{ hadoop_conf.users.hadoop.name }} group={{ hadoop_conf.group }} line="{{ item.stdout }}" regexp="^{{ item.item }}"
+      with_items: "{{ keyscan_localhost.results }}"
+      loop_control:
+        label: "{{ hadoop_conf.users.hadoop.name }}@{{ item.item }}"
+
+    - name: Ssh-keyscan {{ ":" }} hostnames
+      shell: ssh-keyscan -t rsa {{ hostvars[item].hostname }}
+      with_items: "{{ play_hosts }}"
+      changed_when: false
+      register: keyscans
+      loop_control:
+        label: "{{ inventory_hostname }} scans {{ hostvars[item].hostname }}"
+    - name: Update known_hosts {{ ":" }} add hostnames
+      lineinfile: dest=/home/{{ hadoop_conf.users.hadoop.name }}/.ssh/known_hosts create=yes state=present owner={{ hadoop_conf.users.hadoop.name }} group={{ hadoop_conf.group }} line="{{ item.stdout }}" regexp="^{{ hostvars[item.item].hostname }}"
+      with_items: "{{ keyscans.results }}"
+      loop_control:
+        label: "{{ hadoop_conf.users.hadoop.name }}@{{ item.item }}"
+    - name: Copy known_hosts, from {{ hadoop_conf.users.hadoop.name }} to hdfs, yarn, mapred
+      shell: |
+        cp -f /home/{{ hadoop_conf.users.hadoop.name }}/.ssh/known_hosts /home/{{ item }}/.ssh/known_hosts
+        chown {{ item }}:{{ hadoop_conf.group }} /home/{{ item }}/.ssh/known_hosts
+      with_items:
+        - "{{ hadoop_conf.users.hdfs.name }}"
+        - "{{ hadoop_conf.users.yarn.name }}"
+        - "{{ hadoop_conf.users.mapred.name }}"
+      changed_when: false
+      failed_when: false
+      loop_control:
+        label: "{{ item }}@{{ inventory_hostname }}"
+  when: hadoop_conf.hostchecking
+

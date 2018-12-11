@@ -1,0 +1,12 @@
+---
+
+# Parameter:  slaves: []
+
+- name: configure slaves
+  template:
+    src: "templates/slaves.tpl"
+    dest: "{{ hadoop_conf.hadoop_conf_dir }}/slaves"
+    owner: "{{ nobody }}"
+    group: "{{ hadoop_conf.group }}"
+    mode: 0755
+    force: yes

@@ -1,0 +1,8 @@
+deb http://mirrors.sohu.com/debian/ wheezy main non-free contrib
+deb http://mirrors.sohu.com/debian/ wheezy-updates main non-free contrib
+deb http://mirrors.sohu.com/debian/ wheezy-backports main non-free contrib
+deb-src http://mirrors.sohu.com/debian/ wheezy main non-free contrib
+deb-src http://mirrors.sohu.com/debian/ wheezy-updates main non-free contrib
+deb-src http://mirrors.sohu.com/debian/ wheezy-backports main non-free contrib
+deb http://mirrors.sohu.com/debian-security/ wheezy/updates main non-free contrib
+deb-src http://mirrors.sohu.com/debian-security/ wheezy/updates main non-free contrib
