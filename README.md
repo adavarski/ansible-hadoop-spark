@@ -1,5 +1,6 @@
 # Creating Hadoop cluster with Spark 
-# using vagrant + ansible
+
+using vagrant + ansible
 
 
 ## Hadoop + Spark single node easy setup
