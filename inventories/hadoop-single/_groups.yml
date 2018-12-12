@@ -10,7 +10,8 @@ groups:
 
   - name: hadoop_single
     hosts: [node_00]
-  - name: hadoop_client
-    hosts: [node_01]
+#  - name: hadoop_client
+#    hosts: [node_01]
   - name: hadoop_all_nodes
-    children: [hadoop_single, hadoop_client]
+    children: [hadoop_single]
+#    children: [hadoop_single, hadoop_client]
