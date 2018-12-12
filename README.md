@@ -15,9 +15,45 @@ $ ansible-playbook -i inventories/standalone spark_standalone.yml
   | resourcemanager:   | http://192.168.102.100:8088  |
   | nodemanager:       | http://192.168.102.100:8042  |
   | job historyserver: | http://192.168.102.100:19888 |
+  | spark historyserver | http://192.168.102.104:18080|            |
 
+[vagrant@cluster-node-00 ~]$ sudo yum install net-tools
+[vagrant@cluster-node-00 ~]$ sudo netstat -antpl|grep LIST
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      891/master          
+tcp        0      0 0.0.0.0:50010           0.0.0.0:*               LISTEN      26120/java          
+tcp        0      0 0.0.0.0:50075           0.0.0.0:*               LISTEN      26120/java          
+tcp        0      0 0.0.0.0:10020           0.0.0.0:*               LISTEN      26806/java          
+tcp        0      0 0.0.0.0:50020           0.0.0.0:*               LISTEN      26120/java          
+tcp        0      0 127.0.0.1:43813         0.0.0.0:*               LISTEN      26120/java          
+tcp        0      0 192.168.102.100:9000    0.0.0.0:*               LISTEN      26013/java          
+tcp        0      0 0.0.0.0:50090           0.0.0.0:*               LISTEN      26301/java          
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      385/rpcbind         
+tcp        0      0 0.0.0.0:19888           0.0.0.0:*               LISTEN      26806/java          
+tcp        0      0 0.0.0.0:10033           0.0.0.0:*               LISTEN      26806/java          
+tcp        0      0 0.0.0.0:50070           0.0.0.0:*               LISTEN      26013/java          
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      599/sshd            
+tcp6       0      0 192.168.102.100:8088    :::*                    LISTEN      26604/java          
+tcp6       0      0 ::1:25                  :::*                    LISTEN      891/master          
+tcp6       0      0 :::13562                :::*                    LISTEN      26700/java          
+tcp6       0      0 192.168.102.100:8030    :::*                    LISTEN      26604/java          
+tcp6       0      0 192.168.102.100:8031    :::*                    LISTEN      26604/java          
+tcp6       0      0 192.168.102.100:8032    :::*                    LISTEN      26604/java          
+tcp6       0      0 192.168.102.100:8033    :::*                    LISTEN      26604/java          
+tcp6       0      0 :::8040                 :::*                    LISTEN      26700/java          
+tcp6       0      0 :::8042                 :::*                    LISTEN      26700/java          
+tcp6       0      0 :::38927                :::*                    LISTEN      26700/java          
+tcp6       0      0 :::111                  :::*                    LISTEN      385/rpcbind         
+tcp6       0      0 :::22                   :::*                    LISTEN      599/sshd  
+         
+Note: If spark history server is not running:
 
+[root@cluster-node-00 spark]# sbin/start-history-server.sh
 
+[root@cluster-node-00 spark]# sbin/start-history-server.sh
+starting org.apache.spark.deploy.history.HistoryServer, logging to /opt/spark/logs/spark-root-org.apache.spark.deploy.history.HistoryServer-1-cluster-node-00.out
+[root@cluster-node-00 spark]# sudo netstat -antpl|grep 1808
+tcp6       0      0 :::18080                :::*                    LISTEN      32526/java          
+[root@cluster-node-00 spark]# 
 
 ```
 
