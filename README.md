@@ -15,7 +15,9 @@ $ ansible-playbook -i inventories/standalone spark_standalone.yml
   | resourcemanager:   | http://192.168.102.100:8088  |
   | nodemanager:       | http://192.168.102.100:8042  |
   | job historyserver: | http://192.168.102.100:19888 |
-  | spark historyserver | http://192.168.102.104:18080|            |
+  | spark historyserver | http://192.168.102.104:18080|            
+  
+Note: If spark history server is not running:
 
 [vagrant@cluster-node-00 ~]$ sudo yum install net-tools
 [vagrant@cluster-node-00 ~]$ sudo netstat -antpl|grep LIST
@@ -45,15 +47,12 @@ tcp6       0      0 :::38927                :::*                    LISTEN      
 tcp6       0      0 :::111                  :::*                    LISTEN      385/rpcbind         
 tcp6       0      0 :::22                   :::*                    LISTEN      599/sshd  
          
-Note: If spark history server is not running:
-
 [root@cluster-node-00 spark]# sbin/start-history-server.sh
 
 [root@cluster-node-00 spark]# sbin/start-history-server.sh
 starting org.apache.spark.deploy.history.HistoryServer, logging to /opt/spark/logs/spark-root-org.apache.spark.deploy.history.HistoryServer-1-cluster-node-00.out
 [root@cluster-node-00 spark]# sudo netstat -antpl|grep 1808
 tcp6       0      0 :::18080                :::*                    LISTEN      32526/java          
-[root@cluster-node-00 spark]# 
 
 ```
 
