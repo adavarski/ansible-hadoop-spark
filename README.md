@@ -48,8 +48,6 @@ tcp6       0      0 :::111                  :::*                    LISTEN      
 tcp6       0      0 :::22                   :::*                    LISTEN      599/sshd  
          
 [root@cluster-node-00 spark]# sbin/start-history-server.sh
-
-[root@cluster-node-00 spark]# sbin/start-history-server.sh
 starting org.apache.spark.deploy.history.HistoryServer, logging to /opt/spark/logs/spark-root-org.apache.spark.deploy.history.HistoryServer-1-cluster-node-00.out
 [root@cluster-node-00 spark]# sudo netstat -antpl|grep 1808
 tcp6       0      0 :::18080                :::*                    LISTEN      32526/java          
@@ -130,7 +128,7 @@ Ansible inventory files locate under directory: inventories
 
 In inventory file, we define nodes and groups.
 
-For easy management, I wrote a python script "XInv.py" (see ./inventories/XInv.py) which will parse hosts and groups yml files, and generates ansible acceptable json format.
+For easy management, we use a python script "XInv.py" (see ./inventories/XInv.py) which will parse hosts and groups yml files, and generates ansible acceptable json format.
 
 Each directory under ./inventories represents for a dynamic-inventory setting.
 
@@ -156,7 +154,7 @@ Inventory contains two parts: nodes and groups.
 
 It would be best if you have physical machines, otherwise we may take adantage of virtualbox.
 
-The project has a pre-defined Vagrantfile.
+The project has a pre-defined Vagrantfile.ORIG.
 
 To create virtual machine:
 
@@ -167,7 +165,7 @@ vagrant up
 To destroy virtual machine:
 
 ```
-vagrant destroy
+vagrant destroy or vagrant destroy -f
 ```
 
 #### Define groups
