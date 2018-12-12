@@ -1,3 +1,5 @@
+# Creating Hadoop cluster with Spark (using vagrant + ansible)
+
 # Hadoop-install
 This project contains ansible playbooks to install Hadoop cluster.
 
