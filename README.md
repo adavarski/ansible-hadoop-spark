@@ -1,7 +1,31 @@
-# Creating Hadoop cluster with Spark (Using vagrant + ansible)
+# Creating Hadoop cluster with Spark (using vagrant + ansible)
+
+Hadoop + Spark single node
+
+$ vagrant up
+
+* Start Hadoop single node cluster
+
+$ ansible-playbook -i inventories/hadoop-single hadoop.yaml
+
+* Single node (Master + Slave)
+
+$ ansible-playbook -i inventories/standalone spark_standalone.yml
 
 
-# Hadoop-install
+  | Node type          | Web UI                       |
+  | ------------------ | ---------------------------- |
+  | namenode:          | http://192.168.102.100:50070 |
+  | datanode:          | http://192.168.102.100:50075 |
+  | resourcemanager:   | http://192.168.102.100:8088  |
+  | nodemanager:       | http://192.168.102.100:8042  |
+  | job historyserver: | http://192.168.102.100:19888 |
+  | spark historyserver | http://192.168.102.100:18080|
+  
+
+
+
+## Hadoop-install
 This project contains ansible playbooks to install Hadoop cluster.
 
 ## Easy Run
@@ -18,13 +42,6 @@ This project contains ansible playbooks to install Hadoop cluster.
   ansible-playbook -i inventories/hadoop-single hadoop.yaml
   ```
 
-  | Node type          | Web UI                       |
-  | ------------------ | ---------------------------- |
-  | namenode:          | http://192.168.102.100:50070 |
-  | datanode:          | http://192.168.102.100:50075 |
-  | resourcemanager:   | http://192.168.102.100:8088  |
-  | nodemanager:       | http://192.168.102.100:8042  |
-  | job historyserver: | http://192.168.102.100:19888 |
 
 * Start Hadoop cluster
 
