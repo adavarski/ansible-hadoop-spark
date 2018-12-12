@@ -83,6 +83,63 @@ pkg_ic:
   url: http://download.oracle.com/otn-pub/java/jdk
   full_url: https://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/jdk-8u192-linux-x64.tar.gz
 
+
+Hadoop and Spark LATEST releases: Hadoop - 3.1.1 , Spark -2.4.0
+
+davar@home ~/LABS/ansible-hadoop-spark-playground $ cat roles/hadoop/defaults/main.yml 
+---
+
+drop_data: false
+fresh_unzip: true
+start_on_finish: true
+run_demo: false
+
+# passw0rd
+hadoop_password: $6$VKqoODAnoEqhS$QhuYlkAChxm5P1FLgrPXJO4OrdM/qRBsfnBr6Jsfw18GserWNBSJ5kKl64nX9ouqdnBeGSzjMSd5z1SfFMgpE1
+
+pkg_ic:
+  name: hadoop
+  install_path: /usr/lib
+  url: https://www-eu.apache.org/dist/hadoop/common/hadoop-3.1.1/hadoop-3.1.1.tar.gz
+  file: hadoop-3.1.1.tar.gz
+  basename: hadoop-3.1.1
+  version: 3.1.1
+
+hadoop_client_conf:
+  users:
+    demo_runner:
+      name: andy
+      id: 3001
+    spark:
+      name: spark
+      id: 3002
+
+
+davar@home ~/LABS/ansible-hadoop-spark-playground $ cat roles/spark/vars/main.yml 
+---
+
+spark_ics:
+  no_hadoop:
+    version: 2.4.0
+    url: https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-without-hadoop.tgz
+    file: spark-2.4.0-bin-without-hadoop.tgz
+    basename: spark-2.4.0-bin-without-hadoop
+  with_hadoop:
+    version: 2.4.0
+    url: https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz
+    file: spark-2.4.0-bin-hadoop2.7.tgz
+    basename: spark-2.4.0-bin-hadoop2.7
+
+
+Note: Remove         - mapred-site.xml from roles/hadoop/tasks/config_hadoop_common.yml
+
+
+davar@home ~/LABS/ansible-hadoop-spark-playground $ diff roles/spark/tasks/extract_spark.yml roles/spark/tasks/extract_spark.yml.ORIG
+20c20,21
+<       get_url:
+---
+>       cached_get_url:
+>         cached: "{{ resource_cache }}/{{ spark_ic.file }}"
 ```
 
 # Hadoop-install
