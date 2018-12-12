@@ -54,6 +54,35 @@ starting org.apache.spark.deploy.history.HistoryServer, logging to /opt/spark/lo
 [root@cluster-node-00 spark]# sudo netstat -antpl|grep 1808
 tcp6       0      0 :::18080                :::*                    LISTEN      32526/java          
 
+Note: jdk role fixes because of oracle want to login add this line:
+
+headers: 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie'
+
+$ cat roles/jdk/tasks/install_from_tar.yml
+
+- name: Download {{ _jdk_.tarball_file }}
+  cached_get_url:
+    cached: "{{ resource_cache }}/{{ _jdk_.tarball_file }}"
+    # url: "{{ pkg_ic.url }}/{{ _jdk_.version_detail }}/{{ _jdk_.tarball_file }}"
+    url: "{{ pkg_ic.full_url }}"
+    headers: 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie'
+    dest: '{{ pkg_ic.install_path }}/{{ _jdk_.tarball_file }}'
+
+
+$ cat roles/jdk/defaults/main.yml 
+---
+
+pkg_ic:
+  name: jdk
+  repo_install: false
+  install_path: /usr/lib/jdk
+  java_version: 8
+  java_subversion: 192
+  java_full_version: 1.8.0_192
+  b_version: 12
+  url: http://download.oracle.com/otn-pub/java/jdk
+  full_url: https://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/jdk-8u192-linux-x64.tar.gz
+
 ```
 
 # Hadoop-install
